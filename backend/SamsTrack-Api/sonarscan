@@ -1,0 +1,31 @@
+pipeline{
+    agent any
+    tools {
+        // Install the Maven version configured as "M3" and add it to the path.
+        maven "MAVEN_HOME"
+    }
+    
+    stages{
+       stage('GetCode'){
+            steps{
+                git 'https://github.com/ram-chadar/samstrack-api.git'
+            }
+         }        
+       stage('Build'){
+            steps{
+               bat "mvn -Dmaven.test.failure.ignore=true clean package"
+            }
+         }
+        stage('SonarQube analysis') {
+//    def scannerHome = tool 'SonarScanner 4.0';
+        steps{
+        withSonarQubeEnv('MySonarQubeServer') { 
+        // If you have configured more than one global server connection, you can specify its name
+//      sh "${scannerHome}/bin/sonar-scanner"
+        bat "mvn sonar:sonar"
+    }
+        }
+        }
+       
+    }
+}
